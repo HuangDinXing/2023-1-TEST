@@ -1,0 +1,170 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>  // for swap
+using namespace std;
+
+// 定義多項式的節點結構
+struct Node {
+    int coeff;  // 系數
+    int exp;    // 指數
+    Node* next;  // 下一個節點指標
+};
+
+// 放入多項式
+Node* putin0(Node* poly, int coeff, int exp) {
+    Node* current = poly;
+
+    // 查找多項式中是否存在相同指數的項
+    while (current != nullptr) {
+        if (current->exp == exp) {
+            // 如果找到相同指數的項，將系數相加
+            current->coeff += coeff;
+            return poly;  // 返回原多項式
+        }
+        current = current->next;
+    }
+
+    // 如果沒有找到相同指數的項，創建新node並添加到多項式中
+    Node* newnode = new Node;
+    newnode->coeff = coeff;
+    newnode->exp = exp;
+    newnode->next = poly;
+    return newnode;
+}
+
+Node* putin12(Node* poly, int coeff, int exp) {
+    Node* newnode = new Node;
+    newnode->coeff = coeff;
+    newnode->exp = exp;
+    newnode->next = poly;
+    return newnode;
+}
+
+//相乘多項式
+Node* multpoly(Node* poly1, Node* poly2) {
+    Node* result = nullptr;
+    Node* current1 = poly1;
+
+    while (current1 != nullptr) {
+        Node* current2 = poly2;
+        while (current2 != nullptr) {
+            int coeff = (current1->coeff) * (current2->coeff);
+            int exp = (current1->exp) + (current2->exp);
+
+            result = putin0(result, coeff, exp);
+            current2 = current2->next;
+        }
+        current1 = current1->next;
+    }
+    return result;
+}
+
+// 降冪排序
+void bubbleSort(vector<pair<int, int>>& polyArray) {
+    int n = polyArray.size();
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = 0; j < n - i - 1; ++j) {
+            if (polyArray[j].second < polyArray[j + 1].second) {
+                // Swap if the exponents are in the wrong order
+                swap(polyArray[j], polyArray[j + 1]);
+            }
+        }
+    }
+}
+
+// 顯示多項式（降冪表示）
+void showpoly(Node* poly) {
+    // 將多項式轉換為陣列以方便排序
+    vector<pair<int, int>> polyArray;  // pair<系數, 指數>
+    while (poly != nullptr) {
+        polyArray.push_back({ poly->coeff, poly->exp });
+        poly = poly->next;
+    }
+
+    // 使用 bubble sort 進行降冪排序
+    bubbleSort(polyArray);
+
+    // 顯示排序後的多項式
+    for (int i = 0; i < polyArray.size(); ++i) {
+        cout << polyArray[i].first << "x^" << polyArray[i].second;
+        if (i < polyArray.size() - 1) {
+            cout << " + ";
+        }
+    }
+    cout << endl;
+}
+
+int main() {
+    Node* poly1 = nullptr;
+    Node* poly2 = nullptr;
+
+    // 創建第一個多項式
+    int m, mcoeff, mexp;
+    cout << "有幾個term in Polynomial 1" << endl;
+    cout << "m=";
+    while (1) {
+        
+
+        // 檢查輸入是否是整數
+        if (cin >> m) {
+            break;  // 如果是整數，跳出迴圈
+        } else {
+            // 如果不是整數，清除錯誤標誌，忽略錯誤的輸入
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "輸入無效，請輸入整數。" << endl;
+        }
+    }
+
+    for (int i = 1; i <= m; i++) {
+        cout << "term " << i << " 的coeff：";
+        cin >> mcoeff;
+        cout << "term " << i << " 的exp：";
+        cin >> mexp;
+
+        poly1 = putin12(poly1, mcoeff, mexp);
+    }
+
+    // 創建第二個多項式
+    int n, ncoeff, nexp;
+    cout << "有幾個term in Polynomial 2" << endl;
+    cout << "n=";
+    while (1) {
+        
+
+        // 檢查輸入是否是整數
+        if (cin >> n) {
+            break;  // 如果是整數，跳出迴圈
+        } else {
+            // 如果不是整數，清除錯誤標誌，忽略錯誤的輸入
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "輸入無效，請輸入整數。" << endl;
+        }
+    }
+
+    for (int i = 1; i <= n; i++) {
+        cout << "term " << i << " 的coeff：";
+        cin >> ncoeff;
+        cout << "term " << i << " 的exp：";
+        cin >> nexp;
+
+        poly2 = putin12(poly2, ncoeff, nexp);
+    }
+
+    // 顯示兩個多項式
+    cout << "Polynomial 1: ";
+    showpoly(poly1);
+
+    cout << "Polynomial 2: ";
+    showpoly(poly2);
+
+    // 進行多項式乘法
+    Node* result = multpoly(poly1, poly2);
+
+    // 顯示乘法結果
+    cout << "Result: ";
+    showpoly(result);
+
+    return 0;
+}
