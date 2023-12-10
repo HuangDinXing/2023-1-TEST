@@ -1,0 +1,124 @@
+#include <iostream>
+#include <ctime>
+#include <cstdlib>
+#include <chrono> 
+using namespace std;
+using namespace std::chrono;
+// 定義多項式的節點結構
+struct Node {
+    int coeff;  // 系數
+    int exp;    // 指數
+    Node* next;  // 下一個節點指標
+};
+//current 是指著node 
+
+// 放入多項式
+Node* putin(Node* poly, int coeff, int exp) {
+    Node* current = poly;
+    
+    // 查找多項式中是否存在相同指數的項
+    while (current != nullptr) {
+        if (current->exp == exp) {
+            // 如果找到相同指數的項，將系數相加
+            current->coeff += coeff;
+            return poly;  // 返回原多項式
+        }
+        current = current->next;
+    }
+
+    // 如果沒有找到相同指數的項，創建新node並添加到多項式中
+    Node* newnode = new Node;
+    newnode->coeff = coeff;
+    newnode->exp = exp;
+    newnode->next = poly;
+    return newnode;
+}
+
+
+//相乘多項式
+Node* multpoly(Node* poly1,Node* poly2){
+	int m=0,n=0,count=0;
+    Node* result = nullptr;
+    Node* current1=poly1; //當下正在運算得node
+    
+
+
+    
+    while(current1 !=nullptr){
+    	
+        Node* current2=poly2;  //poly1的第一個乘poly2下去
+        while(current2 != nullptr){
+        	n=n+1;
+            int coeff=(current1 -> coeff) * (current2 -> coeff);
+            int exp=(current1 -> exp) + (current2 -> exp);
+            
+            result=putin(result,coeff,exp);    //將相乘(current1*current2)結果儲存
+            
+            current2= current2 -> next;  //下一個poly 中的node
+            count++;
+        }
+        m=m+1;
+        current1= current1 -> next;
+        
+    }
+    //cout<<"m為"<<m<<"時"<<"O(mn)="<<count<<"              ";
+    return result;
+    
+
+}
+
+
+
+// 顯示多項式
+void showpoly(Node* poly) {
+    while (poly != nullptr) {
+        cout << poly->coeff << "x^" << poly->exp;
+        poly = poly->next;
+        if (poly != nullptr) {
+            cout << " + ";
+        }
+    }
+    cout << endl;
+}
+
+int main() {
+	
+	for(int term1=10;term1<31;term1=term1+=10){
+		for(int term2=1;term2<100+1;++term2){
+   		Node* poly1 = nullptr; 
+    	Node* poly2 = nullptr;
+   		int mcoeff,mexp,ncoeff,nexp    ,mstart,mend,nstart,nend;
+		mstart=rand() % 5;
+		mend=mstart+term1-1;
+    
+    	for(int i=mstart;i<mend+1;i++){
+    		mcoeff = rand() % 10 + 1;
+        	poly1 = putin(poly1, mcoeff, i);
+    	}	
+    
+			nstart=rand() % 5;
+			nend=nstart+term2-1;
+
+    		for(int i=nstart;i<=nend;i++){
+        		ncoeff = rand() % 10 + 1; // 隨機生成 1 到 10 之間的系數
+        		poly2 = putin(poly2,ncoeff, i);
+    		}	
+    		auto start = high_resolution_clock::now();   //auto 是 C++11 引入的一個特性，用於自動推斷變數的類型。在你的程式碼中 
+    		for (int i = 0; i < 1000; ++i) {
+    		Node* result = multpoly(poly1, poly2);
+			}
+    		auto stop = high_resolution_clock::now(); 
+    		auto duration = duration_cast<microseconds>(stop - start);
+            cout <<  duration.count() << endl;
+		}
+
+}
+    return 0;
+}
+
+
+
+
+
+
+
