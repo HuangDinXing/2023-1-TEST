@@ -1,0 +1,18 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+def run_webdriver():
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('detach', True)  #不自动关闭浏览器
+    options.add_argument('--start-maximized')#浏览器窗口最大化
+    driver=webdriver.Chrome(options=options)
+    driver.get('https://www.tutorialspoint.com/element-methods-in-selenium-python')
+
+
+    # 定位搜尋框
+    element = driver.find_element(By.CLASS_NAME, "nav__item nav__search nav__search--mobile gradient-input")
+    # 傳入字串
+    element.send_keys("Selenium Python")
+
+if __name__ == '__main__':
+    run_webdriver()
