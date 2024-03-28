@@ -1,0 +1,147 @@
+#include <iostream>
+#include <cstdlib> 
+#include <ctime> 
+using namespace std;
+
+// HEAPSORT
+template<class T>
+void Adjust(T*a, int root, const int n) {
+    T e = a[root];
+    int j;
+    for (j = 2 * root + 1; j < n; j = 2 * j + 1) { //這回圈是在看有無超過tree
+        if (j + 1 < n && a[j] < a[j + 1]) {
+            j++; //右子大於左子則指向右子
+        }
+        if (e >= a[j]) break; //如果根結點(父)大於等於其子則不用換
+        a[(j - 1) / 2] = a[j]; //否則交換父子
+    }
+    a[(j - 1) / 2] = e; //將根節點(父)原來的值放入適當的位置
+}
+
+template<class T>
+void HeapSort(T*a, const int n) {
+    for (int i = n / 2 - 1; i >= 0; i--) Adjust(a, i, n); //建立堆積
+    for (int i = n - 1; i >= 1; i--) { //排序
+        swap(a[0], a[i]); //最下面的子跟root換
+        Adjust(a, 0, i); //建立堆疊
+    }
+}
+
+
+// INSERTIONSORT
+void Insert(int e, int* a, int i) {
+    int temp = e;// 儲存要插入的元素
+    while (temp < a[i] && i >= 0) {// 當要插入的元素小於目前位置的元素且還未到達陣列頭部時，執行迴圈
+        a[i + 1] = a[i];// 將目前位置的元素往右移一位
+        i--;// 向前移動一個位置
+    }
+    a[i + 1] = e;// 將要插入的元素插入到目前的位置的後面
+}
+
+void InsertionSort(int* a, const int n) {
+    for (int j = 1; j < n; j++) {// 從第二個元素開始，直到最後一個元素
+        int temp = a[j];// 暫存目前要插入的元素
+        Insert(temp, a, j - 1);// 將目前元素插入已排序的子陣列中
+    }
+}
+
+// MERGESORT
+void Merge(int arr[], int temp[], int left, int mid, int right) {
+    int i = left, j = mid + 1, k = left;// 初始化索引
+	// 合併兩個已排序的子陣列
+    while (i <= mid && j <= right) {// 如果左子陣列的元素小於等於右子陣列的元素
+        if (arr[i] <= arr[j]) {
+            temp[k++] = arr[i++];// 將左子陣列的元素複製到暫存陣列中
+        } else {
+            temp[k++] = arr[j++];// 將右子陣列的元素複製到暫存陣列中
+        }
+    }
+	// 複製剩餘的左子陣列元素到暫存陣列中
+    while (i <= mid) {
+        temp[k++] = arr[i++];
+    }
+	// 複製剩餘的右子陣列元素到暫存陣列中
+    while (j <= right) {
+        temp[k++] = arr[j++];
+    }
+	// 將暫存陣列中的元素複製回原始陣列中
+    for (int p = left; p <= right; p++) {
+        arr[p] = temp[p];
+    }
+}
+
+void MergePass(int initList[], int mergedList[], int left, int right, int s) {
+	// 遍歷並合併每對子陣列
+    for (int i = left; i <= right - s; i += 2 * s) {
+        int mid = i + s - 1;// 計算中間元素的索引
+        int end = min(i + 2 * s - 1, right);// 計算結束元素的索引
+        Merge(initList, mergedList, i, mid, end);// 合併子陣列
+    }
+}
+
+void MergeSort(int arr[], int size) {
+    int* temp = new int[size];// 創建一個暫存陣列
+    for (int s = 1; s < size; s *= 2) {// 遍歷每個子陣列大小
+        for (int i = 0; i < size - s; i += 2 * s) {// 遍歷每對子陣列
+            int mid = i + s - 1;// 計算中間元素的索引
+            int end = min(i + 2 * s - 1, size - 1);// 計算結束元素的索引
+            MergePass(arr, temp, i, end, s);// 合併每對子陣列
+        }
+    }
+    delete[] temp;// 釋放暫存陣列的記憶體
+}
+
+
+int main (){
+	
+    srand(time(NULL));
+    int scale;    //亂數 
+    int arrsize=100;   //多大的陣列 
+    int arr[arrsize];
+    for(int i=0;i<arrsize;i++){
+        scale=rand()%100+1 ;   //取1~100 
+        arr[i]=scale;
+    }
+    
+    int arraySize = arrsize;
+    
+    cout<<"(1)HeapSort"<<endl
+        <<"(2)InsertionSort"<<endl
+        <<"(3)MergeSort"<<endl
+        <<"請選擇排序方法：";
+    int choose;
+    cin>>choose;
+    while(choose>3||choose<1){
+    	cout<<"請重新選擇方法"<<endl;
+		cin>>choose;
+	}
+    
+    double START,END;
+    
+    cout<<"排序前陣列："<<endl;
+    for(int k=0;k<arraySize;k++){
+	cout<<arr[k]<<" ";
+	}
+	cout<<endl;
+	cout<<"排序後陣列："<<endl; 
+    START = clock();
+	if(choose==1){
+        HeapSort(arr, arraySize);
+    }
+        
+    if(choose==2){
+        InsertionSort(arr, arraySize);
+    }   
+        
+    if(choose==3){
+        MergeSort(arr, arraySize);
+    }     
+      
+    END = clock();
+    for (int i = 0; i < arraySize; i++) {
+        cout << arr[i] << " ";
+    }    
+    
+    cout << endl << "進行運算所花費的時間：" << (END - START) * 1000.0 / CLOCKS_PER_SEC << " 毫秒" << endl;//時鐘滴答數除以 CLOCKS_PER_SEC 會得到秒數，而乘以 1000 會得到毫秒數。
+    return 0;
+}
